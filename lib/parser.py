@@ -8,11 +8,13 @@ from lib.common_defs import *
 # GRAMMAR BNF
 # -------------
 
-# <S> ::= <stmt>*
+# <S> ::= <stmt> <S> | E
 
 # <stmt> ::= <expr> ";"
-# <expr> ::= <term>
-# <term> ::= <factor> (("*" | "/") <factor>)*
+# <expr> ::= <term> <expr2>
+# <expr2> ::= "+" <term> <expr2> | "-" <term> <expr2> | E
+# <term> ::= <factor> <term2>
+# <term2> ::= "*" <factor> <term2> | "/" <factor> <term2> | E
 # <factor> ::= <number> | <id> | "(" <expr> ")"
 
 # -------------
