@@ -86,11 +86,9 @@ class ExpressionNode(Node):
 
 @dataclass
 class UnaryExpressionNode(ExpressionNode):
-    op : TokenType
     child : ExpressionNode
     def Pretty(self, indent=0) -> str:
         s = _FormatIndented(indent, self.__class__.__name__)
-        s += _FormatIndented(indent + 1, self.op.name)
         s += self.child.Pretty(indent + 1)
         return s
 
