@@ -86,7 +86,11 @@ class Parser:
         num = self._match(TokenType.NUM)
         if num:
             return NumberExpressionNode(num.value)
-        _string = self._expect(TokenType.STR)
-        return StringExpressionNode(_string.value)
-        # TODO: Parent..
+        _string = self._match(TokenType.STR)
+        if _string:
+            return StringExpressionNode(_string.value)
+        open_par = self._expect(TokenType.O_PAREN)
+        expr = self._ParseExpression()
+        close_par = self._expect(TokenType.C_PAREN)
+        return expr
     
