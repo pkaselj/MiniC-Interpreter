@@ -69,11 +69,7 @@ class Lexer:
             else:
                 break
 
-        return Token(
-            TokenType.WSPC,
-            None,
-            i
-        )
+        return Token(TokenType.WSPC, None, i)
     
     def _ParseOperator(self, s : str) -> Token | None:
         if len(s) > 1:
@@ -114,11 +110,7 @@ class Lexer:
         i = 1
         for i in range(1, len(s)):
             if s[i] == '"':
-                return Token(
-                    TokenType.STR,
-                    s[1:i],
-                    i-1 # Size witout quotes
-                )
+                return Token(TokenType.STR, s[1:i], i-1) # Size without quotes
             
         return None
     
@@ -141,11 +133,7 @@ class Lexer:
         v = m.group(0)
 
         if v not in self._id_kwd_map:
-            return Token(
-                TokenType.ID,
-                v,
-                len(v)
-            )
+            return Token(TokenType.ID, v, len(v))
 
         return Token (
             token_type = self._id_kwd_map[v],
