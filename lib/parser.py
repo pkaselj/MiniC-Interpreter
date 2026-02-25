@@ -9,12 +9,12 @@ from lib.common_defs import *
 # -------------
 
 # <S> ::= <stmt> <S> | E
-
 # <stmt> ::= <expr> ";"
 # <expr> ::= <term> <expr2>
 # <expr2> ::= "+" <term> <expr2> | "-" <term> <expr2> | E
-# <term> ::= <factor> <term2>
-# <term2> ::= "*" <factor> <term2> | "/" <factor> <term2> | E
+# <term> ::= <unary> <term2>
+# <term2> ::= "*" <unary> <term2> | "/" <unary> <term2> | E
+# <unary> ::= "+" <unary> | "-" <unary> | <factor>
 # <factor> ::= <number> | <id> | "(" <expr> ")"
 
 # -------------
@@ -75,11 +75,17 @@ class Parser:
         return node
     
     def _ParseTerm(self) -> ExpressionNode:
-        node = self._ParseFactor()
+        node = self._ParseUnary()
         while op := self._match(TokenType.OP_MUL, TokenType.OP_DIV):
-            right = self._ParseFactor()
+            right = self._ParseUnary()
             node = BinaryExpressionNode(node, op.token_type, right)
         return node
+    
+    def _ParseUnary(self) -> ExpressionNode:
+        if op := self._match(TokenType.OP_ADD, TokenType.OP_SUB):
+            node = self._ParseUnary()
+            return UnaryExpressionNode(op.token_type, node)
+        return self._ParseFactor()
 
     def _ParseFactor(self) -> ExpressionNode:
         id = self._match(TokenType.ID)
