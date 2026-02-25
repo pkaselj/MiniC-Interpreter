@@ -1,7 +1,7 @@
 from abc import ABC
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import List, Union
+from typing import Generic, List, TypeVar, Union
 
 # -------------
 # General
@@ -18,7 +18,16 @@ class TokenType(Enum):
     NUM     = auto()
     STR     = auto()
     # BOOL    = auto()
-    OP      = auto()
+    OP_ADD  = auto() # +
+    OP_SUB  = auto() # -
+    OP_MUL  = auto() # *
+    OP_DIV  = auto() # /
+    OP_EQ   = auto() # ==
+    OP_NEQ  = auto() # !=
+    OP_GT   = auto() # >
+    OP_LT   = auto() # <
+    OP_GTE  = auto() # >=
+    OP_LTE  = auto() # <=
     ID      = auto()
     ASSIGN  = auto() # =
     WSPC    = auto()
@@ -36,22 +45,12 @@ class TokenType(Enum):
     C_BRACE = auto() # }
     DELIM   = auto() # ;
 
-class Operator(Enum):
-    ADD = auto() # +
-    SUB = auto() # -
-    MUL = auto() # *
-    DIV = auto() # /
-    EQ  = auto() # ==
-    NEQ = auto() # !=
-    GT  = auto() # >
-    LT  = auto() # <
-    GTE = auto() # >=
-    LTE = auto() # <=
 
+T = TypeVar('T')
 @dataclass
-class Token:
+class Token(Generic[T]):
     token_type : TokenType
-    value : Union[None, float, str, Operator]
+    value : T
     strlen : int
 
     def __str__(self) -> str:
@@ -69,6 +68,11 @@ class Token:
 # Parser
 # -------------
 
+# --- Utils
+
+def _FormatIndented(indent : int, line : str):
+    return f'{" " * indent}{line}\n'
+
 # --- Base Class
 
 class Node(ABC):
@@ -81,12 +85,47 @@ class ExpressionNode(Node):
     pass
 
 @dataclass
-class IdentifierExprNode(ExpressionNode):
+class UnaryExpressionNode(ExpressionNode):
+    child : ExpressionNode
+    def Pretty(self, indent=0) -> str:
+        s = _FormatIndented(indent, self.__class__.__name__)
+        s += self.child.Pretty(indent + 1)
+        return s
+
+@dataclass 
+class BinaryExpressionNode(ExpressionNode):
+    left : ExpressionNode
+    op : TokenType #TODO: Change to custom operator type ?
+    right : ExpressionNode
+    def Pretty(self, indent=0) -> str:
+        s = _FormatIndented(indent, self.__class__.__name__)
+        s += self.left.Pretty(indent + 1)
+        s += _FormatIndented(indent + 1, self.op.name)
+        s += self.right.Pretty(indent + 1)
+        return s
+    
+@dataclass
+class IdentifierExpressionNode(ExpressionNode):
     Value : str
     def Pretty(self, indent=0) -> str:
-        pad = ' ' * indent
-        s = f'{pad}{self.__class__.__name__}\n'
-        s += f'{pad}# {self.Value}\n'
+        s = _FormatIndented(indent, self.__class__.__name__)
+        s += _FormatIndented(indent, f'# {self.Value}')
+        return s
+    
+@dataclass
+class NumberExpressionNode(ExpressionNode):
+    Value : float
+    def Pretty(self, indent=0) -> str:
+        s = _FormatIndented(indent, self.__class__.__name__)
+        s += _FormatIndented(indent, f'# {self.Value}')
+        return s
+    
+@dataclass
+class StringExpressionNode(ExpressionNode):
+    Value : str
+    def Pretty(self, indent=0) -> str:
+        s = _FormatIndented(indent, self.__class__.__name__)
+        s += _FormatIndented(indent, f'# {self.Value}')
         return s
 
 # -- Statement Nodes
@@ -98,8 +137,7 @@ class StatementNode(Node):
 class ExprStmtNode(StatementNode):
     Expression : ExpressionNode
     def Pretty(self, indent=0) -> str:
-        pad = ' ' * indent
-        s = f'{pad}{self.__class__.__name__}\n'
+        s = _FormatIndented(indent, self.__class__.__name__)
         s += self.Expression.Pretty(indent + 1)
         return s
 
@@ -109,8 +147,7 @@ class ExprStmtNode(StatementNode):
 class ProgramNode(Node):
     Statements : List[StatementNode]
     def Pretty(self, indent=0) -> str:
-        pad = ' ' * indent
-        s = f'{pad}{self.__class__.__name__}\n'
+        s = _FormatIndented(indent, self.__class__.__name__)
         for stmt in self.Statements:
             s += stmt.Pretty(indent + 1)
         return s

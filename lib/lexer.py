@@ -1,4 +1,4 @@
-from .common_defs import Operator, Token, TokenType, MiniC_Error
+from .common_defs import Token, TokenType, MiniC_Error
 from typing import Generator, List, Tuple
 import re
 
@@ -76,50 +76,34 @@ class Lexer:
         )
     
     def _ParseOperator(self, s : str) -> Token | None:
-        t = Token(
-            TokenType.OP,
-            None,
-            1
-        )
-
         if len(s) > 1:
             match s[0:2]:
                 case '==':
-                    t.value = Operator.EQ
-                    t.strlen = 2
-                    return t
+                    return Token(TokenType.OP_EQ,  None, 2)
                 case '!=':
-                    t.value = Operator.NEQ
-                    t.strlen = 2
-                    return t
+                    return Token(TokenType.OP_NEQ, None, 2)
                 case '>=':
-                    t.value = Operator.GTE
-                    t.strlen = 2
-                    return t
+                    return Token(TokenType.OP_GTE, None, 2)
                 case '<=':
-                    t.value = Operator.LTE
-                    t.strlen = 2
-                    return t
+                    return Token(TokenType.OP_LTE, None, 2)
 
         match s[0]:
             case '=':
-                t.token_type = TokenType.ASSIGN
+                return Token(TokenType.ASSIGN,  None, 1)
             case '+':
-                t.value = Operator.ADD
+                return Token(TokenType.OP_ADD,  None, 1)
             case '-':
-                t.value = Operator.SUB
+                return Token(TokenType.OP_SUB,  None, 1)
             case '*':
-                t.value = Operator.MUL
+                return Token(TokenType.OP_MUL,  None, 1)
             case '/':
-                t.value = Operator.DIV
+                return Token(TokenType.OP_DIV,  None, 1)
             case '>':
-                t.value = Operator.GT
+                return Token(TokenType.OP_GT,  None, 1)
             case '<':
-                t.value = Operator.LT
-            case _:
-                return None
+                return Token(TokenType.OP_LT,  None, 1)
 
-        return t    
+        return None 
 
     def _ParseString(self, s : str) -> Token | None:
         if s[0] != '"':

@@ -1,9 +1,7 @@
-# type: ignore
-
 import unittest
 
 from lib.lexer import Lexer
-from lib.common_defs import Token, TokenType, Operator, MiniC_Error
+from lib.common_defs import Token, TokenType, MiniC_Error
 
 # Used for testing only
 class X: # Don't care about value
@@ -61,18 +59,15 @@ class TestMiniCLexer(unittest.TestCase):
     # ------------------
     def test_op_singlechar(self):
         t = self.lexer.PerformLexing('+ - / * > <')
-        tt = [x.token_type == TokenType.OP for x in t]
-        self.assertTrue(all(tt))
-
-        tv = [x.value for x in t]
+        tv = [x.token_type for x in t]
         self.assertEqual(tv,
             [
-                Operator.ADD,
-                Operator.SUB,
-                Operator.DIV,
-                Operator.MUL,
-                Operator.GT,
-                Operator.LT,
+                TokenType.OP_ADD,
+                TokenType.OP_SUB,
+                TokenType.OP_DIV,
+                TokenType.OP_MUL,
+                TokenType.OP_GT,
+                TokenType.OP_LT,
             ]
         )
     
@@ -82,16 +77,13 @@ class TestMiniCLexer(unittest.TestCase):
     
     def test_op_multichar(self):
         t = self.lexer.PerformLexing('== != >= <=')
-        tt = [x.token_type == TokenType.OP for x in t]
-        self.assertTrue(all(tt))
-
-        tv = [x.value for x in t]
+        tv = [x.token_type for x in t]
         self.assertEqual(tv,
             [
-                Operator.EQ,
-                Operator.NEQ,
-                Operator.GTE,
-                Operator.LTE,
+                TokenType.OP_EQ,
+                TokenType.OP_NEQ,
+                TokenType.OP_GTE,
+                TokenType.OP_LTE,
             ]
         )
 
@@ -155,7 +147,7 @@ class TestMiniCLexer(unittest.TestCase):
                 Token(TokenType.ID, 'x', 1),
                 Token(TokenType.ASSIGN, X(), 1),
                 Token(TokenType.ID, 'yz', 2),
-                Token(TokenType.OP, Operator.ADD, 1),
+                Token(TokenType.OP_ADD, X(), 1),
                 Token(TokenType.NUM, 3, 1),
                 Token(TokenType.DELIM, X(), 1),
             ]
@@ -168,13 +160,13 @@ class TestMiniCLexer(unittest.TestCase):
                 Token(TokenType.K_IF, X(), 2),
                 Token(TokenType.O_PAREN, X(), 1),
                 Token(TokenType.ID, 'x', 1),
-                Token(TokenType.OP, Operator.EQ, 2),
+                Token(TokenType.OP_EQ, X(), 2),
                 Token(TokenType.NUM, 3, 1),
                 Token(TokenType.C_PAREN, X(), 1),
                 Token(TokenType.O_BRACE, X(), 1),
                 Token(TokenType.K_RET, X(), 6),
                 Token(TokenType.ID, 'x', 1),
-                Token(TokenType.OP, Operator.DIV, 1),
+                Token(TokenType.OP_DIV, X(), 1),
                 Token(TokenType.NUM, 2.3, 3),
                 Token(TokenType.DELIM, X(), 1),
                 Token(TokenType.C_BRACE, X(), 1),
@@ -188,7 +180,7 @@ class TestMiniCLexer(unittest.TestCase):
                 Token(TokenType.K_WHILE, X(), 5),
                 Token(TokenType.O_PAREN, X(), 1),
                 Token(TokenType.ID, 'i', 1),
-                Token(TokenType.OP, Operator.NEQ, 2),
+                Token(TokenType.OP_NEQ, X(), 2),
                 Token(TokenType.NUM, 1, 1),
                 Token(TokenType.C_PAREN, X(), 1),
                 Token(TokenType.O_BRACE, X(), 1),

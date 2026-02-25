@@ -5,13 +5,15 @@ from lib.common_defs import *
 
 
 # -------------
-# GRAMMAR
+# GRAMMAR BNF
 # -------------
 
 # <S> ::= <stmt>*
 
 # <stmt> ::= <expr> ";"
-# <expr> ::= <id>
+# <expr> ::= <term>
+# <term> ::= <factor> (("*" | "/") <factor>)*
+# <factor> ::= <number> | <id> | "(" <expr> ")"
 
 # -------------
 
@@ -31,20 +33,20 @@ class Parser:
         self._pos += 1
         return t
     
-    def _match(self, t : TokenType) -> Token | None:
+    def _match(self, *t : TokenType) -> Token | None:
          if self._pos >= len(self._tokens):
             return None
          
          tok = self._tokens[self._pos]
-         if tok.token_type == t:
+         if tok.token_type in t:
             self._advance()
             return tok
          return None
     
-    def _expect(self, t : TokenType) -> Token:
-        tok = self._match(t)
+    def _expect(self, *t : TokenType) -> Token:
+        tok = self._match(*t)
         if not tok:
-            raise MiniC_Error(f"Parser: At index '{self._pos}' expected '{t.name}', got '{self._peek()}'")
+            raise MiniC_Error(f"Parser: At index '{self._pos}' expected '{", ".join([x.name for x in t])}', got '{self._peek()}'")
         return tok
 
     def PerformParsing(self, token_stream : List[Token]) -> Node:
@@ -64,6 +66,27 @@ class Parser:
         return ExprStmtNode(expr)
 
     def _ParseExpression(self) -> ExpressionNode:
-        id = self._expect(TokenType.ID)
-        return IdentifierExprNode(str(id.value))
+        node = self._ParseTerm()
+        while op := self._match(TokenType.OP_ADD, TokenType.OP_SUB):
+            right = self._ParseTerm()
+            node = BinaryExpressionNode(node, op.token_type, right)
+        return node
+    
+    def _ParseTerm(self) -> ExpressionNode:
+        node = self._ParseFactor()
+        while op := self._match(TokenType.OP_MUL, TokenType.OP_DIV):
+            right = self._ParseFactor()
+            node = BinaryExpressionNode(node, op.token_type, right)
+        return node
+
+    def _ParseFactor(self) -> ExpressionNode:
+        id = self._match(TokenType.ID)
+        if id:
+            return IdentifierExpressionNode(id.value)
+        num = self._match(TokenType.NUM)
+        if num:
+            return NumberExpressionNode(num.value)
+        _string = self._expect(TokenType.STR)
+        return StringExpressionNode(_string.value)
+        # TODO: Parent..
     
