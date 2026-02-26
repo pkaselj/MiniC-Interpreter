@@ -1,3 +1,4 @@
+from lib.interpreter import Interpreter
 from lib.lexer import Lexer
 from lib.parser import Parser
 from lib.common_defs import MiniC_Error
@@ -14,6 +15,8 @@ if __name__ == '__main__':
             print('==========================')
             ast = Parser().PerformParsing(tokens)
             print(ast.Pretty())
+            print('==========================')
+            value = Interpreter().Interpret(ast)
         except MiniC_Error as ex:
             print(f'Error: {ex}')
 

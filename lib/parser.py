@@ -51,7 +51,7 @@ class Parser:
             raise MiniC_Error(f"Parser: At index '{self._pos}' expected '{", ".join([x.name for x in t])}', got '{self._peek()}'")
         return tok
 
-    def PerformParsing(self, token_stream : List[Token]) -> Node:
+    def PerformParsing(self, token_stream : List[Token]) -> ProgramNode:
         self._pos = 0
         self._tokens = token_stream
         return self._ParseProgram()
