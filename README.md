@@ -56,3 +56,29 @@ Implement in future:
 - `NULL` value - remove var from env?
 - flow control and loops - `if else while`
 - functions
+
+## Unit tests
+
+### Lexer
+```
+test_empty (tests.test_lexer.TestMiniCLexer.test_empty) ... ok
+test_expr_1 (tests.test_lexer.TestMiniCLexer.test_expr_1) ... ok
+test_expr_2 (tests.test_lexer.TestMiniCLexer.test_expr_2) ... ok
+test_expr_3 (tests.test_lexer.TestMiniCLexer.test_expr_3) ... ok
+test_ident (tests.test_lexer.TestMiniCLexer.test_ident) ... ok
+test_invalid_char (tests.test_lexer.TestMiniCLexer.test_invalid_char) ... ok
+test_kwd (tests.test_lexer.TestMiniCLexer.test_kwd) ... ok
+test_num_frac (tests.test_lexer.TestMiniCLexer.test_num_frac) ... ok
+test_num_int (tests.test_lexer.TestMiniCLexer.test_num_int) ... ok
+test_num_sci (tests.test_lexer.TestMiniCLexer.test_num_sci) ... ok
+test_op_assign (tests.test_lexer.TestMiniCLexer.test_op_assign) ... ok
+test_op_multichar (tests.test_lexer.TestMiniCLexer.test_op_multichar) ... ok
+test_op_singlechar (tests.test_lexer.TestMiniCLexer.test_op_singlechar) ... ok
+test_punctuation (tests.test_lexer.TestMiniCLexer.test_punctuation) ... ok
+test_whitespace (tests.test_lexer.TestMiniCLexer.test_whitespace) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.002s
+
+OK
+```
