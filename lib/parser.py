@@ -1,23 +1,5 @@
 from lib.common_defs import *
 
-# TODO: Operator precedence, unary minus
-
-
-
-# -------------
-# GRAMMAR BNF
-# -------------
-
-# <S> ::= <stmt> <S> | E
-
-# <stmt> ::= <assign> ";"
-# <assign> ::= <id> "=" <assign> | <expr> 
-# <expr> ::= <term> (("+" | "-") <term>)*
-# <term> ::= <factor> (("*" | "/") <factor>)*
-# <factor> ::= <number> | <id> | "(" <expr> ")"
-
-# -------------
-
 # ---------------- SEMANTIC HELPERS
 
 def _IsAssignable(node : Node) -> bool:
@@ -69,9 +51,42 @@ class Parser:
         return ProgramNode(statements)
     
     def _ParseStatement(self) -> StatementNode:
+        t = self._peek()
+        if not t:
+            raise MiniC_Error(f'No tokens to parse in _ParseStatement()')
+        if t.token_type == TokenType.K_IF: # type: ignore
+            return self._ParseIfStatement()
+        elif t.token_type == TokenType.K_WHILE:
+            return self._ParseWhileStatement()
         expr = self._ParseAssign()
         self._expect(TokenType.DELIM)
         return ExprStmtNode(expr)
+    
+    def _ParseIfStatement(self) -> StatementNode:
+        self._expect(TokenType.K_IF)
+        self._expect(TokenType.O_PAREN)
+        cond = self._ParseExpression()
+        self._expect(TokenType.C_PAREN)
+        block_if = self._ParseBlock()
+        block_else = None
+        if self._match(TokenType.K_ELSE):
+            block_else = self._ParseBlock()
+        return IfStatementNode(cond, block_if, block_else)
+    
+    def _ParseWhileStatement(self) -> StatementNode:
+        self._expect(TokenType.K_WHILE)
+        self._expect(TokenType.O_PAREN)
+        cond = self._ParseExpression()
+        self._expect(TokenType.C_PAREN)
+        block = self._ParseBlock()
+        return WhileStatementNode(cond, block)
+    
+    def _ParseBlock(self) -> StatementNode:
+        self._expect(TokenType.O_BRACE)
+        node = BlockStatementNode([])
+        while not self._match(TokenType.C_BRACE):
+            node.Statements.append(self._ParseStatement())
+        return node
     
     def _ParseAssign(self) -> ExpressionNode:
         node = self._ParseExpression()

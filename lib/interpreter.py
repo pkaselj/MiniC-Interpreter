@@ -32,7 +32,28 @@ class Interpreter:
     def _InterpretStatement(self, stmt : StatementNode):
         if isinstance(stmt, ExprStmtNode):
             return self._InterpretExpression(stmt.Expression)
+        elif isinstance(stmt, IfStatementNode):
+            return self._InterpretIfStatement(stmt)
+        elif isinstance(stmt, WhileStatementNode):
+            return self._InterpretWhileStatement(stmt)
+        elif isinstance(stmt, BlockStatementNode):
+            last_value = None
+            for s in stmt.Statements:
+                last_value = self._InterpretStatement(s)
+            return last_value
         raise MiniC_Error(f"Cannot intepret node [{type(stmt)}]")
+    
+    def _InterpretIfStatement(self, stmt : IfStatementNode):
+        if self._InterpretExpression(stmt.Condition) != 0:
+            return self._InterpretStatement(stmt.BlockIf)
+        elif stmt.BlockElse is not None:
+            return self._InterpretStatement(stmt.BlockElse)
+
+    def _InterpretWhileStatement(self, stmt : WhileStatementNode):
+        last_value = None
+        while self._InterpretExpression(stmt.Condition) != 0:
+            last_value = self._InterpretStatement(stmt.Block)
+        return last_value
 
     def _InterpretExpression(self, expr : ExpressionNode):
         if isinstance(expr, UnaryExpressionNode):

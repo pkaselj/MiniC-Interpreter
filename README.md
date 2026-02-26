@@ -10,6 +10,9 @@ It is still WIP and it currently implements the following features:
 - Assignment as top-level expression i.e. assignment produces its own value - `x + (y = 4)` parses as `x + 4; y = 4`.
 - `;`-delimited statements
 - Semantic analysis of left hand side assignability
+- Flow control with `if/else`. `else` is associated with the nearest `if`. Condition is `true` if not equal to `0`.
+- `while` loop. Condition is `true` if not equal to `0`.
+- `if/else` and `while` statements are expressions that return value of last interpreted expression i.e. `if(x) { y = 3; z = 4; }` would return `4` assuming `x` was not equal t o `0` 
 
 ## Grammar EBNF
 
@@ -18,7 +21,10 @@ Currently implemented grammar EBNF:
 ```bnf
 <S> ::= <stmt>*
 
-<stmt> ::= <assign> ";"
+<stmt> ::= <assign> ";" | <if_stmt> | <while_stmt>
+<if_stmt> ::= "if" "(" <expr> ")" <block> ( "else" "(" <block> ")" )?
+<while_stmt> ::= "while (" <expr> ")" <block>
+<block> ::= "{" <stmt>* "}"
 <assign> ::= <id> "=" <assign> | <expr> 
 <expr> ::= <term> (("+" | "-") <term>)*
 <term> ::= <factor> (("*" | "/") <factor>)*
@@ -50,12 +56,35 @@ Error: Could not assign to node of type: [<class 'lib.common_defs.BinaryExpressi
 > x; y = 3 * (2 + x);
 5.0
 21.0
+> if(x) { y  = 4; } else { y = 5; }
+4.0
+> y;
+4.0
+> x = 0;
+0.0
+> if(x) { y  = 4; } else { y = 5; }
+5.0
+> y;
+5.0
+> x = 3; y = 20;
+3.0
+20.0
+> while(x) { x = x - 1; y = y + 1; }
+23.0
+> y;
+23.0
+> x;
+0.0
 ```
 ## Extending the Language
 Implement in future:
-- `NULL` value - remove var from env?
-- flow control and loops - `if else while`
-- functions
+- [ ] `NULL` value - remove var from env?
+- [x] Flow control and loops - `if else while`
+- [ ] Implement `elseif` keyword
+- [ ] Implement comparison operators (`== > < >= <= !=`)
+- [ ] Implement booleans
+- [ ] Unary `-`
+- [ ] Functions
 
 ## Unit tests
 

@@ -94,7 +94,7 @@ class AssignExpressionNode(ExpressionNode):
     right : ExpressionNode
     def Pretty(self, indent=0) -> str:
         s = _FormatIndented(indent, self.__class__.__name__)
-        s += _FormatIndented(indent + 1, f'# "{self.left}" <- ...')
+        s += _FormatIndented(indent + 1, f'ASSIGN "{self.left}"')
         s += self.right.Pretty(indent + 1)
         return s
 
@@ -155,6 +155,40 @@ class ExprStmtNode(StatementNode):
     def Pretty(self, indent=0) -> str:
         s = _FormatIndented(indent, self.__class__.__name__)
         s += self.Expression.Pretty(indent + 1)
+        return s
+    
+@dataclass
+class IfStatementNode(StatementNode):
+    Condition : ExpressionNode
+    BlockIf : StatementNode
+    BlockElse : StatementNode | None
+    def Pretty(self, indent=0) -> str:
+        s = _FormatIndented(indent, self.__class__.__name__)
+        s += 'IF: ' + self.Condition.Pretty(indent + 1)
+        s += 'THEN: ' + self.BlockIf.Pretty(indent + 1)
+        if self.BlockElse:
+            s += 'ELSE: ' + self.BlockIf.Pretty(indent + 1)
+        else:
+            s += _FormatIndented(indent + 1, 'ELSE: None')
+        return s
+    
+@dataclass
+class WhileStatementNode(StatementNode):
+    Condition : ExpressionNode
+    Block : StatementNode
+    def Pretty(self, indent=0) -> str:
+        s = _FormatIndented(indent, self.__class__.__name__)
+        s += 'WHILE: ' + self.Condition.Pretty(indent + 1)
+        s += 'THEN: ' + self.Block.Pretty(indent + 1)
+        return s
+    
+@dataclass
+class BlockStatementNode(StatementNode):
+    Statements : List[StatementNode]
+    def Pretty(self, indent=0) -> str:
+        s = _FormatIndented(indent, self.__class__.__name__)
+        for stmt in self.Statements:
+            s += stmt.Pretty(indent + 1)
         return s
 
 # -- Program/Start Node
