@@ -10,14 +10,20 @@ from lib.common_defs import *
 
 # <S> ::= <stmt> <S> | E
 
-# <stmt> ::= <expr> ";"
-# <expr> ::= <term> <expr2>
-# <expr2> ::= "+" <term> <expr2> | "-" <term> <expr2> | E
-# <term> ::= <factor> <term2>
-# <term2> ::= "*" <factor> <term2> | "/" <factor> <term2> | E
+# <stmt> ::= <assign> ";"
+# <assign> ::= <id> "=" <assign> | <expr> 
+# <expr> ::= <term> (("+" | "-") <term>)*
+# <term> ::= <factor> (("*" | "/") <factor>)*
 # <factor> ::= <number> | <id> | "(" <expr> ")"
 
 # -------------
+
+# ---------------- SEMANTIC HELPERS
+
+def _IsAssignable(node : Node) -> bool:
+    return isinstance(node, AssignableTrait)
+
+# ---------------- PARSER IMPLEMENTATION
 
 class Parser:
     _pos : int = 0
@@ -63,10 +69,19 @@ class Parser:
         return ProgramNode(statements)
     
     def _ParseStatement(self) -> StatementNode:
-        expr = self._ParseExpression()
+        expr = self._ParseAssign()
         self._expect(TokenType.DELIM)
         return ExprStmtNode(expr)
-
+    
+    def _ParseAssign(self) -> ExpressionNode:
+        node = self._ParseExpression()
+        if self._match(TokenType.ASSIGN):
+            if not _IsAssignable(node):
+                raise MiniC_Error(f'Could not assign to node of type: [{type(node)}]')
+            right = self._ParseAssign()
+            node = AssignExpressionNode(node, right) # type: ignore
+        return node
+            
     def _ParseExpression(self) -> ExpressionNode:
         node = self._ParseTerm()
         while op := self._match(TokenType.OP_ADD, TokenType.OP_SUB):
@@ -95,4 +110,5 @@ class Parser:
         expr = self._ParseExpression()
         close_par = self._expect(TokenType.C_PAREN)
         return expr
+
     

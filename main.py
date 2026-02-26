@@ -5,18 +5,19 @@ from lib.common_defs import MiniC_Error
 
 if __name__ == '__main__':
     input_string = ''
-    while input_string != 'x':
+    interpreter = Interpreter()
+    while True:
         input_string = input('> ')
         try:
-            print('==========================')
+            # print('==========================')
             tokens = Lexer().PerformLexing(input_string)
-            for token in tokens:
-                print(token)
-            print('==========================')
+            # for token in tokens:
+            #     print(token)
+            # print('==========================')
             ast = Parser().PerformParsing(tokens)
-            print(ast.Pretty())
-            print('==========================')
-            value = Interpreter().Interpret(ast)
+            # print(ast.Pretty())
+            # print('==========================')
+            value = interpreter.Interpret(ast)
         except MiniC_Error as ex:
             print(f'Error: {ex}')
 

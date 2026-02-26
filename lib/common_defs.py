@@ -78,11 +78,25 @@ def _FormatIndented(indent : int, line : str):
 class Node(ABC):
     def Pretty(self, indent=0) -> str:
         raise NotImplementedError()
+    
+class AssignableTrait(ABC):
+    def Identifier(self) -> str:
+        raise NotImplementedError()
 
 # -- Expression Nodes
 
 class ExpressionNode(Node):
     pass
+
+@dataclass
+class AssignExpressionNode(ExpressionNode):
+    left : AssignableTrait # Assignable node
+    right : ExpressionNode
+    def Pretty(self, indent=0) -> str:
+        s = _FormatIndented(indent, self.__class__.__name__)
+        s += _FormatIndented(indent + 1, f'# "{self.left}" <- ...')
+        s += self.right.Pretty(indent + 1)
+        return s
 
 @dataclass
 class UnaryExpressionNode(ExpressionNode):
@@ -105,12 +119,14 @@ class BinaryExpressionNode(ExpressionNode):
         return s
     
 @dataclass
-class IdentifierExpressionNode(ExpressionNode):
+class IdentifierExpressionNode(ExpressionNode, AssignableTrait):
     Value : str
     def Pretty(self, indent=0) -> str:
         s = _FormatIndented(indent, self.__class__.__name__)
         s += _FormatIndented(indent, f'# {self.Value}')
         return s
+    def Identifier(self) -> str:
+        return self.Value
     
 @dataclass
 class NumberExpressionNode(ExpressionNode):
