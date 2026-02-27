@@ -11,8 +11,14 @@ It is still WIP and it currently implements the following features:
 - `;`-delimited statements
 - Semantic analysis of left hand side assignability
 - Flow control with `if/else`. `else` is associated with the nearest `if`. Condition is `true` if not equal to `0`.
-- `while` loop. Condition is `true` if not equal to `0`.
+- `while` and `for` loops. Condition is `true` if not equal to `0`.
+- `for` loop has optional arguments e.g. valid forms are:
+  - `for(x = 1; x < 5; x = x + 1) { x; }` but also,
+  - `x = 1; for(; x < 5; x = x + 1) { x; }` and,
+  - `x = 1; for(; x < 5; ) { x = x + 1; }`
+  - or even an infinite loop: `for(;;){}` so you can shoot yourself in the foot - just like in C *but mini*
 - `if/else` and `while` statements are expressions that return value of last interpreted expression i.e. `if(x) { y = 3; z = 4; }` would return `4` assuming `x` was not equal t o `0` 
+- Left-associative comparison operators (`== != <= >= < >`) i.e. `x < y < z` is parsed as `((x < y) < z)`
 
 ## Grammar EBNF
 
@@ -21,9 +27,10 @@ Currently implemented grammar EBNF:
 ```bnf
 <S> ::= <stmt>*
 
-<stmt> ::= <assign> ";" | <if_stmt> | <while_stmt>
-<if_stmt> ::= "if" "(" <expr> ")" <block> ( "else" "(" <block> ")" )?
-<while_stmt> ::= "while (" <expr> ")" <block>
+<stmt> ::= <assign> ";" | <if_stmt> | <while_stmt> | <for_stmt>
+<if_stmt> ::= "if" "(" <assign> ")" <block> ( "else" "(" <block> ")" )?
+<while_stmt> ::= "while" "(" <assign> ")" <block>
+<for_stmt> ::= "for" "(" <assign>? ";" <assign>? ";" <assign>? ")" <block>
 <block> ::= "{" <stmt>* "}"
 
 <assign> ::= <expr> ("=" <assign>)?
@@ -77,13 +84,16 @@ Error: Could not assign to node of type: [<class 'lib.common_defs.BinaryExpressi
 23.0
 > x;
 0.0
+> for(x = 1; x < 5; x = x + 1){ x; }
+4.0
 ```
 ## Extending the Language
 Implement in future:
 - [ ] `NULL` value - remove var from env?
 - [x] Flow control and loops - `if else while`
+- [x] `for` loop (implemented as `while` internally)
 - [ ] Implement `elseif` keyword
-- [ ] Implement comparison operators (`== > < >= <= !=`)
+- [x] Implement comparison operators (`== > < >= <= !=`)
 - [ ] Implement booleans
 - [ ] Unary `-`
 - [ ] Functions

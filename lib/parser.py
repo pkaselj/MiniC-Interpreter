@@ -58,6 +58,8 @@ class Parser:
             return self._ParseIfStatement()
         elif t.token_type == TokenType.K_WHILE:
             return self._ParseWhileStatement()
+        elif t.token_type == TokenType.K_FOR:
+            return self._ParseForStatement()
         expr = self._ParseAssign()
         self._expect(TokenType.DELIM)
         return ExprStmtNode(expr)
@@ -65,7 +67,7 @@ class Parser:
     def _ParseIfStatement(self) -> StatementNode:
         self._expect(TokenType.K_IF)
         self._expect(TokenType.O_PAREN)
-        cond = self._ParseExpression()
+        cond = self._ParseAssign()
         self._expect(TokenType.C_PAREN)
         block_if = self._ParseBlock()
         block_else = None
@@ -76,10 +78,28 @@ class Parser:
     def _ParseWhileStatement(self) -> StatementNode:
         self._expect(TokenType.K_WHILE)
         self._expect(TokenType.O_PAREN)
-        cond = self._ParseExpression()
+        cond = self._ParseAssign()
         self._expect(TokenType.C_PAREN)
         block = self._ParseBlock()
         return WhileStatementNode(cond, block)
+    
+    def _ParseForStatement(self) -> StatementNode:
+        initial = None
+        end_cond = None
+        next_action = None
+        self._expect(TokenType.K_FOR)
+        self._expect(TokenType.O_PAREN)
+        if (t := self._peek()) and t.token_type != TokenType.DELIM:
+            initial = self._ParseAssign()
+        self._expect(TokenType.DELIM)
+        if (t := self._peek()) and t.token_type != TokenType.DELIM:
+            end_cond = self._ParseAssign()
+        self._expect(TokenType.DELIM)
+        if (t := self._peek()) and t.token_type != TokenType.C_PAREN:
+            next_action = self._ParseAssign()
+        self._expect(TokenType.C_PAREN)
+        block = self._ParseBlock()
+        return ForStatementNode(initial, end_cond, next_action, block)
     
     def _ParseBlock(self) -> StatementNode:
         self._expect(TokenType.O_BRACE)

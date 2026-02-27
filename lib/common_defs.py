@@ -143,6 +143,10 @@ class StringExpressionNode(ExpressionNode):
         s = _FormatIndented(indent, self.__class__.__name__)
         s += _FormatIndented(indent, f'# {self.Value}')
         return s
+    
+# class NoOpExpressionNode(ExpressionNode):
+#     def Pretty(self, indent=0) -> str:
+#         return _FormatIndented(indent, self.__class__.__name__)
 
 # -- Statement Nodes
 
@@ -170,6 +174,20 @@ class IfStatementNode(StatementNode):
             s += 'ELSE: ' + self.BlockIf.Pretty(indent + 1)
         else:
             s += _FormatIndented(indent + 1, 'ELSE: None')
+        return s
+    
+@dataclass
+class ForStatementNode(StatementNode):
+    Initial : ExpressionNode | None
+    EndCondition : ExpressionNode | None
+    NextAction : ExpressionNode | None
+    Block : StatementNode
+    def Pretty(self, indent=0) -> str:
+        s = _FormatIndented(indent, self.__class__.__name__)
+        s += 'FOR: ' + self.Initial.Pretty(indent + 1) if self.Initial else "<NOOP>"
+        s += ';    ' + self.EndCondition.Pretty(indent + 1) if self.EndCondition else "<NOOP>"
+        s += ';    ' + self.NextAction.Pretty(indent + 1) if self.NextAction else "<NOOP>"
+        s += 'THEN: ' + self.Block.Pretty(indent + 1)
         return s
     
 @dataclass

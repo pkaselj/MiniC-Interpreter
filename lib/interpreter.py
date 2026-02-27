@@ -36,6 +36,8 @@ class Interpreter:
             return self._InterpretIfStatement(stmt)
         elif isinstance(stmt, WhileStatementNode):
             return self._InterpretWhileStatement(stmt)
+        elif isinstance(stmt, ForStatementNode):
+            return self._InterpretForStatement(stmt)
         elif isinstance(stmt, BlockStatementNode):
             last_value = None
             for s in stmt.Statements:
@@ -48,6 +50,16 @@ class Interpreter:
             return self._InterpretStatement(stmt.BlockIf)
         elif stmt.BlockElse is not None:
             return self._InterpretStatement(stmt.BlockElse)
+
+    def _InterpretForStatement(self, stmt : ForStatementNode):
+        last_value = None
+        if stmt.Initial:
+            self._InterpretExpression(stmt.Initial)
+        while self._InterpretExpression(stmt.EndCondition) != 0 if stmt.EndCondition else True:
+            last_value = self._InterpretStatement(stmt.Block)
+            if stmt.NextAction:
+                self._InterpretExpression(stmt.NextAction)
+        return last_value
 
     def _InterpretWhileStatement(self, stmt : WhileStatementNode):
         last_value = None
