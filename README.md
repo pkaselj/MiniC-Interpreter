@@ -25,7 +25,8 @@ Currently implemented grammar EBNF:
 <if_stmt> ::= "if" "(" <expr> ")" <block> ( "else" "(" <block> ")" )?
 <while_stmt> ::= "while (" <expr> ")" <block>
 <block> ::= "{" <stmt>* "}"
-<assign> ::= <id> "=" <assign> | <expr> 
+
+<assign> ::= <expr> ("=" <assign>)?
 <expr> ::= <term> (("+" | "-") <term>)*
 <term> ::= <factor> (("*" | "/") <factor>)*
 <factor> ::= <number> | <id> | "(" <assign> ")"
