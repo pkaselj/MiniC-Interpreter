@@ -98,6 +98,8 @@ class Lexer:
                 return Token(TokenType.OP_GT,  None, 1)
             case '<':
                 return Token(TokenType.OP_LT,  None, 1)
+            case '!':
+                return Token(TokenType.OP_NOT,  None, 1)
 
         return None 
 

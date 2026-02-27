@@ -36,8 +36,9 @@ Currently implemented grammar EBNF:
 <assign> ::= <expr> ("=" <assign>)?
 <expr> ::= <additive> (("==" | "!=" | ">" | "<" | ">=" | "<=") <additive>)*
 <additive> ::= <term> (("+" | "-") <term>)*
-<term> ::= <factor> (("*" | "/") <factor>)*
-<factor> ::= <number> | <id> | "(" <assign> ")"
+<term> ::= <unary> (("*" | "/") <unary>)*
+<unary> ::= ("!" | "-" | "+") <unary> | <primary>
+<primary> ::= <number> | <id> | "(" <assign> ")"
 ```
 
 ## Examples

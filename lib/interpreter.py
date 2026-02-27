@@ -69,7 +69,7 @@ class Interpreter:
 
     def _InterpretExpression(self, expr : ExpressionNode):
         if isinstance(expr, UnaryExpressionNode):
-            return self._InterpretExpression(expr.child)
+            return self._InterpretUnaryExpression(expr)
         elif isinstance(expr, BinaryExpressionNode):
             return self._InterpretBinaryExpression(expr)
         elif isinstance(expr, (StringExpressionNode, NumberExpressionNode)):
@@ -77,17 +77,17 @@ class Interpreter:
         elif isinstance(expr, IdentifierExpressionNode):
             return self._env.GetValue(expr.Value)
         elif isinstance(expr, AssignExpressionNode):
-            if not isinstance(expr.left, AssignableTrait):
-                raise MiniC_Error(f'Left hand side [{expr.left.__class__}] is not assignable.')
-            value = self._InterpretExpression(expr.right)
-            self._env.SetValue(expr.left.Identifier(), value) # type: ignore
+            if not isinstance(expr.Left, AssignableTrait):
+                raise MiniC_Error(f'Left hand side [{expr.Left.__class__}] is not assignable.')
+            value = self._InterpretExpression(expr.Right)
+            self._env.SetValue(expr.Left.Identifier(), value) # type: ignore
             return value
         raise MiniC_Error(f"Cannot intepret node [{type(expr)}]")
         
     def _InterpretBinaryExpression(self, expr : BinaryExpressionNode):
-        left = self._InterpretExpression(expr.left)
-        right = self._InterpretExpression(expr.right)
-        match expr.op:
+        left = self._InterpretExpression(expr.Left)
+        right = self._InterpretExpression(expr.Right)
+        match expr.Op:
             case TokenType.OP_ADD: return (left + right)
             case TokenType.OP_SUB: return (left - right)
             case TokenType.OP_MUL: return (left * right)
@@ -98,4 +98,12 @@ class Interpreter:
             case TokenType.OP_GTE: return (left >= right)
             case TokenType.OP_LT: return (left < right)
             case TokenType.OP_LTE: return (left <= right)
-        raise MiniC_Error(f'Invalid operator [{expr.op.name}] while interpreting Binary Expression')
+        raise MiniC_Error(f'Invalid operator [{expr.Op.name}] while interpreting Binary Expression')
+    
+    def _InterpretUnaryExpression(self, expr : UnaryExpressionNode):
+        value = self._InterpretExpression(expr.Child)
+        match expr.Op:
+            case TokenType.OP_ADD: return value
+            case TokenType.OP_SUB: return -1 * value
+            case TokenType.OP_NOT: return not value
+        raise MiniC_Error(f'Invalid operator [{expr.Op.name}] while interpreting Unary Expression')

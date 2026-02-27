@@ -139,13 +139,19 @@ class Parser:
         return node
     
     def _ParseTerm(self) -> ExpressionNode:
-        node = self._ParseFactor()
+        node = self._ParseUnary()
         while op := self._match(TokenType.OP_MUL, TokenType.OP_DIV):
-            right = self._ParseFactor()
+            right = self._ParseUnary()
             node = BinaryExpressionNode(node, op.token_type, right)
         return node
 
-    def _ParseFactor(self) -> ExpressionNode:
+    def _ParseUnary(self) -> ExpressionNode:
+        if t := self._match(TokenType.OP_ADD, TokenType.OP_SUB, TokenType.OP_NOT):
+            base = self._ParseUnary()
+            return UnaryExpressionNode(base, t.token_type)
+        return self._ParsePrimary()
+
+    def _ParsePrimary(self) -> ExpressionNode:
         id = self._match(TokenType.ID)
         if id:
             return IdentifierExpressionNode(id.value)

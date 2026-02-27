@@ -18,6 +18,7 @@ class TokenType(Enum):
     NUM     = auto()
     STR     = auto()
     # BOOL    = auto()
+    OP_NOT  = auto() # !
     OP_ADD  = auto() # +
     OP_SUB  = auto() # -
     OP_MUL  = auto() # *
@@ -90,32 +91,34 @@ class ExpressionNode(Node):
 
 @dataclass
 class AssignExpressionNode(ExpressionNode):
-    left : AssignableTrait # Assignable node
-    right : ExpressionNode
+    Left : AssignableTrait # Assignable node
+    Right : ExpressionNode
     def Pretty(self, indent=0) -> str:
         s = _FormatIndented(indent, self.__class__.__name__)
-        s += _FormatIndented(indent + 1, f'ASSIGN "{self.left}"')
-        s += self.right.Pretty(indent + 1)
+        s += _FormatIndented(indent + 1, f'ASSIGN "{self.Left}"')
+        s += self.Right.Pretty(indent + 1)
         return s
 
 @dataclass
 class UnaryExpressionNode(ExpressionNode):
-    child : ExpressionNode
+    Child : ExpressionNode
+    Op : TokenType
     def Pretty(self, indent=0) -> str:
         s = _FormatIndented(indent, self.__class__.__name__)
-        s += self.child.Pretty(indent + 1)
+        s += _FormatIndented(indent + 1, self.Op.name)
+        s += self.Child.Pretty(indent + 1)
         return s
 
 @dataclass 
 class BinaryExpressionNode(ExpressionNode):
-    left : ExpressionNode
-    op : TokenType #TODO: Change to custom operator type ?
-    right : ExpressionNode
+    Left : ExpressionNode
+    Op : TokenType #TODO: Change to custom operator type ?
+    Right : ExpressionNode
     def Pretty(self, indent=0) -> str:
         s = _FormatIndented(indent, self.__class__.__name__)
-        s += self.left.Pretty(indent + 1)
-        s += _FormatIndented(indent + 1, self.op.name)
-        s += self.right.Pretty(indent + 1)
+        s += self.Left.Pretty(indent + 1)
+        s += _FormatIndented(indent + 1, self.Op.name)
+        s += self.Right.Pretty(indent + 1)
         return s
     
 @dataclass
