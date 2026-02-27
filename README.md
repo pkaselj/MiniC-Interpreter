@@ -28,7 +28,7 @@ Currently implemented grammar EBNF:
 <assign> ::= <id> "=" <assign> | <expr> 
 <expr> ::= <term> (("+" | "-") <term>)*
 <term> ::= <factor> (("*" | "/") <factor>)*
-<factor> ::= <number> | <id> | "(" <expr> ")"
+<factor> ::= <number> | <id> | "(" <assign> ")"
 ```
 
 ## Examples

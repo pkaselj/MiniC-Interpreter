@@ -122,7 +122,7 @@ class Parser:
         if _string:
             return StringExpressionNode(_string.value)
         open_par = self._expect(TokenType.O_PAREN)
-        expr = self._ParseExpression()
+        expr = self._ParseAssign()
         close_par = self._expect(TokenType.C_PAREN)
         return expr
 
