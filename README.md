@@ -56,6 +56,8 @@ Currently implemented grammar EBNF:
 
 ## Examples
 
+### Interactive / REPL Example
+
 ```
 > x;
 Error: Symbol [x] not defined!
@@ -113,6 +115,19 @@ Error: Could not assign to node of type: [<class 'lib.common_defs.BinaryExpressi
 > b(1);
 2.0
 ```
+
+### Code Examples
+
+Code examples can be found in [./examples](./examples).
+
+- [Examples](./examples/)
+  - [Fibonacci Sum](./examples/fibonacci_sum.mc) - Counts the sum of first `n` Fibonacci numbers
+
+## Using the Interpreter
+
+To use the interpreter in interactive mode/REPL, run it as `python main.py --interactive` or `python main.py -i`. To interpret code from a file,
+run `python main.py --file <file>` or `python main.py -f <file>` where `<file>` is path to a file that contains *Mini-C* code e.g. `python main.py --file .\examples\fibonacci_sum.mc`.
+
 ## Extending the Language
 Implement in future:
 - [ ] `NULL` value - remove var from env?
@@ -124,13 +139,13 @@ Implement in future:
 - [x] Implement logical operators `|| &&`
 - [x] Unary `- + !`
 - [x] Functions
-- [ ] Decide on closured or not
+- [ ] Decide on closures or not
 - [ ] Implement function overloading
 - [ ] Structures and classes
 - [ ] Noop expressions (extra delimiters `;`)
 - [ ] `||` and `&&` _shortcircuiting_
 - [ ] Comments
-- [ ] File execution
+- [x] File execution
 - [ ] Function validation pass - referencing non-existing symbols
 
 ## Unit tests

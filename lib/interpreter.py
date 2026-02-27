@@ -211,6 +211,6 @@ class Interpreter:
         value = self._InterpretExpression(expr.Child)
         match expr.Op:
             case TokenType.OP_ADD: return value
-            case TokenType.OP_SUB: return -1 * value
+            case TokenType.OP_SUB: return -1 * value # type: ignore
             case TokenType.OP_NOT: return not value
         raise MiniC_Error(f'Invalid operator [{expr.Op.name}] while interpreting Unary Expression')
