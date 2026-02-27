@@ -98,6 +98,8 @@ class Interpreter:
             case TokenType.OP_GTE: return (left >= right)
             case TokenType.OP_LT: return (left < right)
             case TokenType.OP_LTE: return (left <= right)
+            case TokenType.OP_AND: return (left and right)
+            case TokenType.OP_OR: return (left or right)
         raise MiniC_Error(f'Invalid operator [{expr.Op.name}] while interpreting Binary Expression')
     
     def _InterpretUnaryExpression(self, expr : UnaryExpressionNode):

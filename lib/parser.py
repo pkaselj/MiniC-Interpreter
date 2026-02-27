@@ -109,15 +109,34 @@ class Parser:
         return node
     
     def _ParseExpression(self) -> ExpressionNode:
-        node = self._ParseAssignee()
+        node = self._ParseAsignee()
         if self._match(TokenType.ASSIGN):
             if not _IsAssignable(node):
                 raise MiniC_Error(f'Could not assign to node of type: [{type(node)}]')
             right = self._ParseExpression()
             node = AssignExpressionNode(node, right) # type: ignore
         return node
+    
+    def _ParseAsignee(self) -> ExpressionNode:
+        return self._ParseLogicalOR()
+    
+    def _ParseLogicalOR(self) -> ExpressionNode:
+        node = self._ParseLogicalAND()
+        while (t := self._peek()) and t.token_type == TokenType.OP_OR:
+            self._expect(TokenType.OP_OR)
+            right = self._ParseLogicalAND()
+            node = BinaryExpressionNode(node, TokenType.OP_OR, right)
+        return node
+    
+    def _ParseLogicalAND(self) -> ExpressionNode:
+        node = self._ParseComparee()
+        while (t := self._peek()) and t.token_type == TokenType.OP_AND:
+            self._expect(TokenType.OP_AND)
+            right = self._ParseComparee()
+            node = BinaryExpressionNode(node, TokenType.OP_AND, right)
+        return node
             
-    def _ParseAssignee(self) -> ExpressionNode:
+    def _ParseComparee(self) -> ExpressionNode:
         node = self._ParseAdditive()
         while op := self._match(
             TokenType.OP_EQ,

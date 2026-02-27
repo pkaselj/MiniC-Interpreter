@@ -82,6 +82,10 @@ class Lexer:
                     return Token(TokenType.OP_GTE, None, 2)
                 case '<=':
                     return Token(TokenType.OP_LTE, None, 2)
+                case '||':
+                    return Token(TokenType.OP_OR, None, 2)
+                case '&&':
+                    return Token(TokenType.OP_AND, None, 2)
 
         match s[0]:
             case '=':

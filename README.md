@@ -19,7 +19,7 @@ It is still WIP and it currently implements the following features:
   - or even an infinite loop: `for(;;){}` so you can shoot yourself in the foot - just like in C *but mini*
 - `if/else` and `while` statements are expressions that return value of last interpreted expression i.e. `if(x) { y = 3; z = 4; }` would return `4` assuming `x` was not equal t o `0` 
 - Left-associative comparison operators (`== != <= >= < >`) i.e. `x < y < z` is parsed as `((x < y) < z)`
-- Unary operators `- + !`, where `!x` is the logical/boolean `not(x)` operator
+- Unary operators `- + !`, where `!x` is the logical/boolean `not(x)` operator and binary logical operators `&& ||`
 
 ## Grammar EBNF
 
@@ -35,7 +35,10 @@ Currently implemented grammar EBNF:
 <block> ::= "{" <stmt>* "}"
 
 <expr> ::= <assignee> ("=" <assignee>)?
-<assignee> ::= <additive> (("==" | "!=" | ">" | "<" | ">=" | "<=") <additive>)*
+<assignee> ::= <logic_or>
+<logic_or> ::= <logic_and> ("||" <logic_and>)*
+<logic_and> ::= <comparee> ("&&" <comparee>)*
+<comparee> ::= <additive> (("==" | "!=" | ">" | "<" | ">=" | "<=") <additive>)*
 <additive> ::= <term> (("+" | "-") <term>)*
 <term> ::= <unary> (("*" | "/") <unary>)*
 <unary> ::= ("!" | "-" | "+") <unary> | <primary>
@@ -88,6 +91,11 @@ Error: Could not assign to node of type: [<class 'lib.common_defs.BinaryExpressi
 0.0
 > for(x = 1; x < 5; x = x + 1){ x; }
 4.0
+> x = 1; y = 0;
+1.0
+0.0
+> x && y || x && y;
+0.0
 ```
 ## Extending the Language
 Implement in future:
@@ -97,10 +105,11 @@ Implement in future:
 - [ ] Implement `elseif` keyword
 - [x] Implement comparison operators (`== > < >= <= !=`)
 - [ ] Implement booleans
-- [ ] Implement logical operators `|| &&`
+- [x] Implement logical operators `|| &&`
 - [x] Unary `- + !`
 - [ ] Functions
 - [ ] Noop expressions (extra delimiters `;`)
+- [ ] `||` and `&&` _shortcircuiting_
 
 ## Unit tests
 

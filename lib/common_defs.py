@@ -19,6 +19,8 @@ class TokenType(Enum):
     STR     = auto()
     # BOOL    = auto()
     OP_NOT  = auto() # !
+    OP_OR   = auto() # ||
+    OP_AND  = auto() # &&
     OP_ADD  = auto() # +
     OP_SUB  = auto() # -
     OP_MUL  = auto() # *
