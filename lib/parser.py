@@ -98,6 +98,20 @@ class Parser:
         return node
             
     def _ParseExpression(self) -> ExpressionNode:
+        node = self._ParseAdditive()
+        while op := self._match(
+            TokenType.OP_EQ,
+            TokenType.OP_NEQ,
+            TokenType.OP_GT,
+            TokenType.OP_GTE,
+            TokenType.OP_LT,
+            TokenType.OP_LTE):
+
+            right = self._ParseAdditive()
+            node = BinaryExpressionNode(node, op.token_type, right)
+        return node
+    
+    def _ParseAdditive(self) -> ExpressionNode:
         node = self._ParseTerm()
         while op := self._match(TokenType.OP_ADD, TokenType.OP_SUB):
             right = self._ParseTerm()

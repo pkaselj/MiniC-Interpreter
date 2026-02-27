@@ -27,7 +27,8 @@ Currently implemented grammar EBNF:
 <block> ::= "{" <stmt>* "}"
 
 <assign> ::= <expr> ("=" <assign>)?
-<expr> ::= <term> (("+" | "-") <term>)*
+<expr> ::= <additive> (("==" | "!=" | ">" | "<" | ">=" | "<=") <additive>)*
+<additive> ::= <term> (("+" | "-") <term>)*
 <term> ::= <factor> (("*" | "/") <factor>)*
 <factor> ::= <number> | <id> | "(" <assign> ")"
 ```
