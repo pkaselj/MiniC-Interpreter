@@ -19,6 +19,7 @@ It is still WIP and it currently implements the following features:
   - or even an infinite loop: `for(;;){}` so you can shoot yourself in the foot - just like in C *but mini*
 - `if/else` and `while` statements are expressions that return value of last interpreted expression i.e. `if(x) { y = 3; z = 4; }` would return `4` assuming `x` was not equal t o `0` 
 - Left-associative comparison operators (`== != <= >= < >`) i.e. `x < y < z` is parsed as `((x < y) < z)`
+- Unary operators `- + !`, where `!x` is the logical/boolean `not(x)` operator
 
 ## Grammar EBNF
 
@@ -27,18 +28,18 @@ Currently implemented grammar EBNF:
 ```bnf
 <S> ::= <stmt>*
 
-<stmt> ::= <assign> ";" | <if_stmt> | <while_stmt> | <for_stmt>
-<if_stmt> ::= "if" "(" <assign> ")" <block> ( "else" "(" <block> ")" )?
-<while_stmt> ::= "while" "(" <assign> ")" <block>
-<for_stmt> ::= "for" "(" <assign>? ";" <assign>? ";" <assign>? ")" <block>
+<stmt> ::= <expr> ";" | <if_stmt> | <while_stmt> | <for_stmt>
+<if_stmt> ::= "if" "(" <expr> ")" <block> ( "else" "(" <block> ")" )?
+<while_stmt> ::= "while" "(" <expr> ")" <block>
+<for_stmt> ::= "for" "(" <expr>? ";" <expr>? ";" <expr>? ")" <block>
 <block> ::= "{" <stmt>* "}"
 
-<assign> ::= <expr> ("=" <assign>)?
-<expr> ::= <additive> (("==" | "!=" | ">" | "<" | ">=" | "<=") <additive>)*
+<expr> ::= <assignee> ("=" <assignee>)?
+<assignee> ::= <additive> (("==" | "!=" | ">" | "<" | ">=" | "<=") <additive>)*
 <additive> ::= <term> (("+" | "-") <term>)*
 <term> ::= <unary> (("*" | "/") <unary>)*
 <unary> ::= ("!" | "-" | "+") <unary> | <primary>
-<primary> ::= <number> | <id> | "(" <assign> ")"
+<primary> ::= <number> | <id> | "(" <expr> ")"
 ```
 
 ## Examples
@@ -96,8 +97,10 @@ Implement in future:
 - [ ] Implement `elseif` keyword
 - [x] Implement comparison operators (`== > < >= <= !=`)
 - [ ] Implement booleans
-- [ ] Unary `-`
+- [ ] Implement logical operators `|| &&`
+- [x] Unary `- + !`
 - [ ] Functions
+- [ ] Noop expressions (extra delimiters `;`)
 
 ## Unit tests
 

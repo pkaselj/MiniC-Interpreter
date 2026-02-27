@@ -60,14 +60,14 @@ class Parser:
             return self._ParseWhileStatement()
         elif t.token_type == TokenType.K_FOR:
             return self._ParseForStatement()
-        expr = self._ParseAssign()
+        expr = self._ParseExpression()
         self._expect(TokenType.DELIM)
         return ExprStmtNode(expr)
     
     def _ParseIfStatement(self) -> StatementNode:
         self._expect(TokenType.K_IF)
         self._expect(TokenType.O_PAREN)
-        cond = self._ParseAssign()
+        cond = self._ParseExpression()
         self._expect(TokenType.C_PAREN)
         block_if = self._ParseBlock()
         block_else = None
@@ -78,7 +78,7 @@ class Parser:
     def _ParseWhileStatement(self) -> StatementNode:
         self._expect(TokenType.K_WHILE)
         self._expect(TokenType.O_PAREN)
-        cond = self._ParseAssign()
+        cond = self._ParseExpression()
         self._expect(TokenType.C_PAREN)
         block = self._ParseBlock()
         return WhileStatementNode(cond, block)
@@ -90,13 +90,13 @@ class Parser:
         self._expect(TokenType.K_FOR)
         self._expect(TokenType.O_PAREN)
         if (t := self._peek()) and t.token_type != TokenType.DELIM:
-            initial = self._ParseAssign()
+            initial = self._ParseExpression()
         self._expect(TokenType.DELIM)
         if (t := self._peek()) and t.token_type != TokenType.DELIM:
-            end_cond = self._ParseAssign()
+            end_cond = self._ParseExpression()
         self._expect(TokenType.DELIM)
         if (t := self._peek()) and t.token_type != TokenType.C_PAREN:
-            next_action = self._ParseAssign()
+            next_action = self._ParseExpression()
         self._expect(TokenType.C_PAREN)
         block = self._ParseBlock()
         return ForStatementNode(initial, end_cond, next_action, block)
@@ -108,16 +108,16 @@ class Parser:
             node.Statements.append(self._ParseStatement())
         return node
     
-    def _ParseAssign(self) -> ExpressionNode:
-        node = self._ParseExpression()
+    def _ParseExpression(self) -> ExpressionNode:
+        node = self._ParseAssignee()
         if self._match(TokenType.ASSIGN):
             if not _IsAssignable(node):
                 raise MiniC_Error(f'Could not assign to node of type: [{type(node)}]')
-            right = self._ParseAssign()
+            right = self._ParseExpression()
             node = AssignExpressionNode(node, right) # type: ignore
         return node
             
-    def _ParseExpression(self) -> ExpressionNode:
+    def _ParseAssignee(self) -> ExpressionNode:
         node = self._ParseAdditive()
         while op := self._match(
             TokenType.OP_EQ,
@@ -162,7 +162,7 @@ class Parser:
         if _string:
             return StringExpressionNode(_string.value)
         open_par = self._expect(TokenType.O_PAREN)
-        expr = self._ParseAssign()
+        expr = self._ParseExpression()
         close_par = self._expect(TokenType.C_PAREN)
         return expr
 
