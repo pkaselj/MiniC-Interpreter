@@ -20,13 +20,21 @@ It is still WIP and it currently implements the following features:
 - `if/else` and `while` statements are expressions that return value of last interpreted expression i.e. `if(x) { y = 3; z = 4; }` would return `4` assuming `x` was not equal t o `0` 
 - Left-associative comparison operators (`== != <= >= < >`) i.e. `x < y < z` is parsed as `((x < y) < z)`
 - Unary operators `- + !`, where `!x` is the logical/boolean `not(x)` operator and binary logical operators `&& ||`
+- Implemented functions. Functions are defined **only at the beginning of the file (before statements)** as follows: `function fname(arg1, arg2, arg3) { expr1; expr2; }` and are called as follows: `fname(1, 2, 3)`. Return value of the function is its last executed statemened - in this case evaluated value of `expr2`.
+- Implemented variables and variable local aliasing - local variables alias global ones. Each function can access its caller's symbols. (for now, maybe remove or keep *closures*).
 
 ## Grammar EBNF
 
 Currently implemented grammar EBNF:
 
 ```bnf
-<S> ::= <stmt>*
+
+<S> ::= <func_def>* <stmt>*
+
+<arg_list> ::= <expr> ("," <expr>)*
+<param_list> ::= <id> ("," <id>)*
+
+<func_def> ::= "function" <id> "(" <param_list>? ")" <block>
 
 <stmt> ::= <expr> ";" | <if_stmt> | <while_stmt> | <for_stmt>
 <if_stmt> ::= "if" "(" <expr> ")" <block> ( "else" "(" <block> ")" )?
@@ -41,7 +49,8 @@ Currently implemented grammar EBNF:
 <comparee> ::= <additive> (("==" | "!=" | ">" | "<" | ">=" | "<=") <additive>)*
 <additive> ::= <term> (("+" | "-") <term>)*
 <term> ::= <unary> (("*" | "/") <unary>)*
-<unary> ::= ("!" | "-" | "+") <unary> | <primary>
+<unary> ::= ("!" | "-" | "+") <unary> | <func_call>
+<func_call> ::= <primary> ("(" <arg_list>? ")")*
 <primary> ::= <number> | <id> | "(" <expr> ")"
 ```
 
@@ -96,6 +105,13 @@ Error: Could not assign to node of type: [<class 'lib.common_defs.BinaryExpressi
 0.0
 > x && y || x && y;
 0.0
+> function a(b, c, d){ b + c * d; }
+> a(2, 3, 4); 
+14.0
+> function a(arg1) { arg1 + arg2; }
+> function b(arg2) { a(arg2); }
+> b(1);
+2.0
 ```
 ## Extending the Language
 Implement in future:
@@ -107,9 +123,15 @@ Implement in future:
 - [ ] Implement booleans
 - [x] Implement logical operators `|| &&`
 - [x] Unary `- + !`
-- [ ] Functions
+- [x] Functions
+- [ ] Decide on closured or not
+- [ ] Implement function overloading
+- [ ] Structures and classes
 - [ ] Noop expressions (extra delimiters `;`)
 - [ ] `||` and `&&` _shortcircuiting_
+- [ ] Comments
+- [ ] File execution
+- [ ] Function validation pass - referencing non-existing symbols
 
 ## Unit tests
 

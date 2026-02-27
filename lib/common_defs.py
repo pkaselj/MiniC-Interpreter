@@ -40,6 +40,7 @@ class TokenType(Enum):
     K_FOR   = auto()
     K_ELSE  = auto()
     K_WHILE = auto()
+    K_COMMA = auto() # ,
     O_PAREN = auto() # (  
     C_PAREN = auto() # )
     # O_BRACK = auto() # [ 
@@ -82,8 +83,8 @@ class Node(ABC):
     def Pretty(self, indent=0) -> str:
         raise NotImplementedError()
     
-class AssignableTrait(ABC):
-    def Identifier(self) -> str:
+class SymbolTrait(ABC):
+    def Symbol(self) -> str:
         raise NotImplementedError()
 
 # -- Expression Nodes
@@ -92,8 +93,19 @@ class ExpressionNode(Node):
     pass
 
 @dataclass
+class FnCallExpressionNode(ExpressionNode):
+    Symbol : ExpressionNode
+    Args : List[ExpressionNode]
+    def Pretty(self, indent=0) -> str:
+        s = _FormatIndented(indent, self.__class__.__name__)
+        s += 'CALL: ' + self.Symbol.Pretty(indent + 1)
+        for i, arg in enumerate(self.Args):
+            s += '{i}: ' + arg.Pretty(indent + 1)
+        return s
+
+@dataclass
 class AssignExpressionNode(ExpressionNode):
-    Left : AssignableTrait # Assignable node
+    Left : SymbolTrait # Assignable node
     Right : ExpressionNode
     def Pretty(self, indent=0) -> str:
         s = _FormatIndented(indent, self.__class__.__name__)
@@ -124,13 +136,13 @@ class BinaryExpressionNode(ExpressionNode):
         return s
     
 @dataclass
-class IdentifierExpressionNode(ExpressionNode, AssignableTrait):
+class IdentifierExpressionNode(ExpressionNode, SymbolTrait):
     Value : str
     def Pretty(self, indent=0) -> str:
         s = _FormatIndented(indent, self.__class__.__name__)
         s += _FormatIndented(indent, f'# {self.Value}')
         return s
-    def Identifier(self) -> str:
+    def Symbol(self) -> str:
         return self.Value
     
 @dataclass
@@ -214,13 +226,29 @@ class BlockStatementNode(StatementNode):
             s += stmt.Pretty(indent + 1)
         return s
 
+@dataclass
+class FnDefinitionStatementNode(StatementNode):
+    Symbol : ExpressionNode
+    Params : List[SymbolTrait]
+    Block : StatementNode
+    def Pretty(self, indent=0) -> str:
+        s = _FormatIndented(indent, self.__class__.__name__)
+        s += 'DEF: ' + self.Symbol.Pretty(indent + 1)
+        for i, param in enumerate(self.Params):
+            s += '{i}: ' + param.Pretty(indent + 1) # type: ignore
+        s += 'BLOCK: ' + self.Block.Pretty(indent + 1)
+        return s
+
 # -- Program/Start Node
 
 @dataclass
 class ProgramNode(Node):
+    FnDefinitions : List[FnDefinitionStatementNode]
     Statements : List[StatementNode]
     def Pretty(self, indent=0) -> str:
         s = _FormatIndented(indent, self.__class__.__name__)
+        for defn in self.FnDefinitions:
+            s += defn.Pretty(indent + 1)
         for stmt in self.Statements:
             s += stmt.Pretty(indent + 1)
         return s

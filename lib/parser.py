@@ -3,7 +3,7 @@ from lib.common_defs import *
 # ---------------- SEMANTIC HELPERS
 
 def _IsAssignable(node : Node) -> bool:
-    return isinstance(node, AssignableTrait)
+    return isinstance(node, SymbolTrait)
 
 # ---------------- PARSER IMPLEMENTATION
 
@@ -46,10 +46,29 @@ class Parser:
 
     def _ParseProgram(self) -> ProgramNode:
         statements = []
-        while self._peek() is not None:
+        fndefs = []
+        while (t := self._peek()) and t.token_type == TokenType.K_FN:
+            fndefs.append(self._ParseFnDefinition())
+        while (t := self._peek()):  
             statements.append(self._ParseStatement())
-        return ProgramNode(statements)
+        return ProgramNode(fndefs, statements)
     
+    def _ParseFnDefinition(self) -> StatementNode:
+        self._expect(TokenType.K_FN)
+        sym = self._expect(TokenType.ID)
+        sym = IdentifierExpressionNode(sym.value)
+        self._expect(TokenType.O_PAREN)
+        params = []
+        while (t := self._peek()) and t.token_type != TokenType.C_PAREN:
+            param = self._expect(TokenType.ID)
+            param = IdentifierExpressionNode(param.value)
+            params.append(param)
+            self._match(TokenType.K_COMMA)
+        self._expect(TokenType.C_PAREN)
+        block = self._ParseBlock()
+        return FnDefinitionStatementNode(sym, params, block)
+
+
     def _ParseStatement(self) -> StatementNode:
         t = self._peek()
         if not t:
@@ -168,7 +187,20 @@ class Parser:
         if t := self._match(TokenType.OP_ADD, TokenType.OP_SUB, TokenType.OP_NOT):
             base = self._ParseUnary()
             return UnaryExpressionNode(base, t.token_type)
-        return self._ParsePrimary()
+        return self._ParseFnCall()
+
+    def _ParseFnCall(self) -> ExpressionNode:
+        node = self._ParsePrimary()
+        while (nt := self._peek()) and nt.token_type == TokenType.O_PAREN:
+            self._expect(TokenType.O_PAREN)
+            params = []
+            while (t := self._peek()) and t.token_type != TokenType.C_PAREN:
+                param = self._ParseExpression()
+                params.append(param)
+                self._match(TokenType.K_COMMA)
+            self._expect(TokenType.C_PAREN)
+            node = FnCallExpressionNode(node, params)
+        return node
 
     def _ParsePrimary(self) -> ExpressionNode:
         id = self._match(TokenType.ID)
